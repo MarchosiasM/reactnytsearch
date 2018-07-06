@@ -1,9 +1,27 @@
 import React, { Component } from 'react';
-import SearchBars from '../../components/SearchBars/';
 import axios from 'axios';
+import stockImg from '../../../src/assets/images/new-york-times-logo.png';
+import SearchBars from '../../components/SearchBars/';
 import CardContainer from '../../components/Cards/Container';
 
-console.log();
+const processArticles = (articles) => {
+  const processedArticles = articles.map((article) => {
+    const imgBucket = article.multimedia.filter(element => (
+      element.subtype === 'wide'
+    ));
+    const newArticle = {
+      _id: article._id,
+      headline: article.headline.main,
+      snippet: article.snippet,
+      weburl: article.web_url,
+      byline: article.byline ? article.byline.original : '',
+      img: imgBucket[0] ? `http://nytimes.com/${imgBucket[0].url}` : stockImg,
+    };
+    return newArticle;
+  });
+  return processedArticles;
+};
+
 class Layout extends Component {
   constructor(props) {
     super(props);
@@ -19,16 +37,14 @@ class Layout extends Component {
 
   handleChange(event) {
     this.setState({ value: event.target.value });
-    console.log(this.state.value);
   }
 
   handleSubmit(event) {
     event.preventDefault();
     this.setState({
-      articles: '',
+      articles: [],
       loading: true,
     });
-    console.log(event);
     const url = 'https://api.nytimes.com/svc/search/v2/articlesearch.json';
     axios.get(url, {
       params: {
@@ -38,11 +54,10 @@ class Layout extends Component {
     })
       .then((response) => {
         this.articles = response;
-        console.log('Articles?', this.articles.data.response.docs);
-        this.setState({ articles: this.articles.data.response.docs, loading: false });
-      })
-      .catch((error) => {
-        console.log(error);
+        console.log('Articles received', this.articles.data.response.docs);
+        const processedArticles = processArticles(this.articles.data.response.docs);
+        console.log('Your processed articles look like', processedArticles);
+        this.setState({ articles: processedArticles, loading: false });
       });
   }
 
@@ -57,7 +72,6 @@ class Layout extends Component {
         />
         <div className="card">
           <div className="card-body">
-            {console.log(this.state.articles)}
             {this.state.articles.length
               ?
                 <CardContainer articles={this.state.articles} />
@@ -67,7 +81,6 @@ class Layout extends Component {
               'Good things come to those who wait'
               :
               'Please search something!'}
-
           </div>
         </div>
 

@@ -8,7 +8,7 @@ const styling = {
 };
 
 const Card = ({
-  headline, snippet, weburl, byline, img, saveClick,
+  _id, headline, snippet, weburl, byline, img, saveClick,
 }) => (
   <div className="card card-group col-sm-4" style={styling}>
     <img className="card-img-top" src={img} alt={snippet} style={{ padding: '3px' }} />
@@ -19,7 +19,7 @@ const Card = ({
       <a href={weburl} target="_blank" className="btn btn-primary" style={{ margin: '5px' }}>Read more</a>
       <button
         className="btn btn-secondary"
-        onClick={(e) => { saveClick(headline, snippet, weburl, byline, img); }}
+        onClick={(e) => { saveClick(headline, snippet, weburl, byline, img, _id); }}
       >Save
       </button>
     </div>

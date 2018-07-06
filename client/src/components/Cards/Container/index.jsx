@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
+import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
 import Card from '../Card/';
-import stockImg from '../../../assets/images/new-york-times-logo.png';
 
 class CardsContainer extends Component {
   constructor(props) {
@@ -17,30 +17,46 @@ class CardsContainer extends Component {
   }
 
   saveClick() {
-    return (headline, snippet, weburl, byline, img) => {
-      toast(`${headline} added to your saved articles`);
-      console.log(snippet);
+    return (headline, snippet, weburl, byline, img, _id) => {
+      const savedArticle = {
+        _id,
+        headline,
+        snippet,
+        weburl,
+        byline,
+        img,
+      };
+      console.log('Heres an item Im saving, ', savedArticle);
+      axios({
+        method: 'post',
+        url: '/articles',
+        data: savedArticle,
+      })
+        .then((response) => {
+          console.log(response);
+          toast(`${headline} added to your saved articles`);
+          console.log(snippet);
+        });
     };
   }
 
   render() {
+    console.log(this.state.articles);
     return (
       <div>
         <ToastContainer />
         {this.state.articles.map((article) => {
           const individualClick = this.saveClick(article);
-          const imgBucket = article.multimedia.filter(element => (
-            element.subtype === 'wide'
-          ));
           return (
             <Card
                 /* eslint-disable no-underscore-dangle */
               key={article._id}
-              headline={article.headline.main}
+              _id={article._id}
+              headline={article.headline}
               snippet={article.snippet}
               weburl={article.web_url}
-              byline={article.byline ? article.byline.original : ''}
-              img={imgBucket[0] ? `http://nytimes.com/${imgBucket[0].url}` : stockImg}
+              byline={article.byline}
+              img={article.img}
               saveClick={individualClick}
             />
           );
